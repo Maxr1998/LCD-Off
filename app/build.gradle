@@ -1,0 +1,56 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.hugo'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+    defaultConfig {
+        applicationId "de.Maxr1998.android.lcd_off"
+        minSdkVersion 25
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        setProperty("archivesBaseName", "lcdoff-$versionName")
+    }
+    buildTypes {
+        release {
+            debuggable false
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+            versionNameSuffix "-debug"
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+
+def propFile = project.file("keyStore.properties")
+if (propFile.exists()) {
+    Properties props = new Properties()
+    props.load(new FileInputStream(propFile))
+    def main = android.signingConfigs.create("main")
+    main.storeFile project.file(props["keyStore"])
+    main.storePassword props["keyStorePassword"]
+    main.keyAlias props["keyAlias"]
+    main.keyPassword props["keyPassword"]
+
+    android.buildTypes.release.signingConfig = main
+    android.buildTypes.debug.signingConfig = main
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    //noinspection GradleDynamicVersion
+    compile "eu.chainfire:libsuperuser:1.0.0.+"
+}
